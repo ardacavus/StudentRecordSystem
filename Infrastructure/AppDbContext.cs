@@ -5,8 +5,8 @@ namespace StudentSystem.Infrastructure
 {
     public class AppDbContext
     {
-        // Kanka burası çok önemli. Kendi bilgisayarında çalışırken
-        // Server=. (nokta) genelde çalışır. Çalışmazsa SQL Server adını yazarız.
+        // Kendi bilgisayarın olduğu için Server=. (nokta) yeterli.
+        // Eğer hata alırsan nokta yerine bilgisayar adını yazarız.
         private readonly string connectionString = "Server=.;Database=StudentSystemDB;Trusted_Connection=True;";
 
         public SqlConnection GetConnection()

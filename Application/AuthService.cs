@@ -14,24 +14,27 @@ namespace StudentSystem.Application
             _context = new AppDbContext();
         }
 
+        // Kullanıcı adı ve şifreyi kontrol eden metod
         public User Login(string username, string password)
         {
+            User user = null;
+
             using (var conn = _context.GetConnection())
             {
                 conn.Open();
-                // SQL Injection olmaması için parametreli sorgu kullanıyoruz (Güvenlik dersi +1 puan)
+                // SQL Injection'a karşı parametreli sorgu kullanıyoruz (Clean Code & Güvenlik)
                 string query = "SELECT * FROM Users WHERE Username = @u AND PasswordHash = @p";
 
                 using (var cmd = new SqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@u", username);
-                    cmd.Parameters.AddWithValue("@p", password); // İleride burayı hashleyeceğiz
+                    cmd.Parameters.AddWithValue("@p", password);
 
                     using (var reader = cmd.ExecuteReader())
                     {
                         if (reader.Read())
                         {
-                            return new User
+                            user = new User
                             {
                                 UserID = (int)reader["UserID"],
                                 Username = reader["Username"].ToString(),
@@ -41,7 +44,7 @@ namespace StudentSystem.Application
                     }
                 }
             }
-            return null; // Kullanıcı bulunamadı
+            return user; // Kullanıcı varsa döner, yoksa null döner
         }
     }
 }

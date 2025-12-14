@@ -52,6 +52,44 @@ namespace StudentSystem.Infrastructure
             }
             return list;
         }
+        // Belirli bir öğrencinin not geçmişini getir
+        public List<Enrollment> GetByStudentId(int studentId)
+        {
+            var list = new List<Enrollment>();
+            using (var conn = _context.GetConnection())
+            {
+                conn.Open();
+                string query = @"
+            SELECT 
+                e.EnrollmentID, e.Grade, e.EnrollmentDate,
+                s.FirstName, s.LastName,
+                c.CourseName
+            FROM Enrollments e
+            JOIN Students s ON e.StudentID = s.StudentID
+            JOIN Courses c ON e.CourseID = c.CourseID
+            WHERE e.StudentID = @sid"; // Sadece seçilen öğrenci
+
+                using (var cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@sid", studentId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            list.Add(new Enrollment
+                            {
+                                EnrollmentID = (int)reader["EnrollmentID"],
+                                Grade = (double)reader["Grade"],
+                                EnrollmentDate = (DateTime)reader["EnrollmentDate"],
+                                StudentName = reader["FirstName"] + " " + reader["LastName"],
+                                CourseName = reader["CourseName"].ToString()
+                            });
+                        }
+                    }
+                }
+            }
+            return list;
+        }
 
         // Yeni Ders Kaydı ve Not Girişi
         public void Add(int studentId, int courseId, double grade)

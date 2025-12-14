@@ -51,7 +51,10 @@ namespace StudentSystem.UI
             this.FormBorderStyle = FormBorderStyle.None;
             this.BackColor = Color.FromArgb(245, 246, 250);
 
-            // SIDEBAR
+            // Görev Çubuğunu Kapatmaması için Ayar
+            this.MaximizedBounds = Screen.FromHandle(this.Handle).WorkingArea;
+
+            // --- 1. SIDEBAR (SOL MENÜ) ---
             pnlSidebar = new Panel();
             pnlSidebar.Width = 280;
             pnlSidebar.Dock = DockStyle.Left;
@@ -80,13 +83,13 @@ namespace StudentSystem.UI
             pnlSidebar.Controls.Add(pnlMenuContainer);
             pnlMenuContainer.BringToFront();
 
-            // English Menu Buttons
+            // Menü Butonları
             AddModernMenuButton("Dashboard", pnlMenuContainer, true);
             AddModernMenuButton("Students", pnlMenuContainer);
             AddModernMenuButton("Courses", pnlMenuContainer);
             AddModernMenuButton("Enrollments", pnlMenuContainer);
 
-            // Logout Button
+            // Çıkış Butonu (Sidebar Altı)
             Panel pnlLogout = new Panel();
             pnlLogout.Dock = DockStyle.Bottom;
             pnlLogout.Height = 80;
@@ -103,12 +106,12 @@ namespace StudentSystem.UI
             btnLogout.Click += (s, e) => System.Windows.Forms.Application.Exit();
             pnlLogout.Controls.Add(btnLogout);
 
-            // HEADER
+            // --- 2. HEADER (ÜST PANEL) ---
             pnlHeader = new Panel();
             pnlHeader.Height = 80;
             pnlHeader.Dock = DockStyle.Top;
             pnlHeader.BackColor = Color.Transparent;
-            pnlHeader.MouseDown += Header_MouseDown;
+            pnlHeader.MouseDown += Header_MouseDown; // Formu sürükleme olayı
             this.Controls.Add(pnlHeader);
 
             lblPageTitle = new Label();
@@ -119,21 +122,38 @@ namespace StudentSystem.UI
             lblPageTitle.AutoSize = true;
             pnlHeader.Controls.Add(lblPageTitle);
 
-            // Window Controls
+            // --- WINDOW CONTROLS (Kapat, Büyüt, Küçült) ---
+
+            // Kapat (X)
             Label lblClose = new Label() { Text = "✕", Font = new Font("Segoe UI", 14), ForeColor = Color.Gray, Location = new Point(this.Width - 50, 20), Cursor = Cursors.Hand, Anchor = AnchorStyles.Top | AnchorStyles.Right };
             lblClose.Click += (s, e) => System.Windows.Forms.Application.Exit();
+            lblClose.MouseEnter += (s, e) => lblClose.ForeColor = Color.Red;
+            lblClose.MouseLeave += (s, e) => lblClose.ForeColor = Color.Gray;
             pnlHeader.Controls.Add(lblClose);
 
-            Label lblMin = new Label() { Text = "―", Font = new Font("Segoe UI", 14), ForeColor = Color.Gray, Location = new Point(this.Width - 90, 20), Cursor = Cursors.Hand, Anchor = AnchorStyles.Top | AnchorStyles.Right };
+            // Tam Ekran (☐)
+            Label lblMax = new Label() { Text = "☐", Font = new Font("Segoe UI", 16), ForeColor = Color.Gray, Location = new Point(this.Width - 90, 18), Cursor = Cursors.Hand, Anchor = AnchorStyles.Top | AnchorStyles.Right };
+            lblMax.Click += (s, e) => {
+                if (this.WindowState == FormWindowState.Maximized) this.WindowState = FormWindowState.Normal;
+                else this.WindowState = FormWindowState.Maximized;
+            };
+            lblMax.MouseEnter += (s, e) => lblMax.ForeColor = Color.FromArgb(0, 184, 148);
+            lblMax.MouseLeave += (s, e) => lblMax.ForeColor = Color.Gray;
+            pnlHeader.Controls.Add(lblMax);
+
+            // Küçült (―)
+            Label lblMin = new Label() { Text = "―", Font = new Font("Segoe UI", 14), ForeColor = Color.Gray, Location = new Point(this.Width - 130, 20), Cursor = Cursors.Hand, Anchor = AnchorStyles.Top | AnchorStyles.Right };
             lblMin.Click += (s, e) => this.WindowState = FormWindowState.Minimized;
+            lblMin.MouseEnter += (s, e) => lblMin.ForeColor = Color.Blue;
+            lblMin.MouseLeave += (s, e) => lblMin.ForeColor = Color.Gray;
             pnlHeader.Controls.Add(lblMin);
 
-            // CONTENT
+            // --- 3. CONTENT (İÇERİK ALANI) - !!! HATANIN KAYNAĞI BURASIYDI !!! ---
             pnlContent = new Panel();
             pnlContent.Dock = DockStyle.Fill;
             pnlContent.Padding = new Padding(30);
             this.Controls.Add(pnlContent);
-            pnlContent.BringToFront();
+            pnlContent.BringToFront(); // İçeriği en öne getir
         }
 
         // --- PAGE LOADING METHODS ---
@@ -170,29 +190,38 @@ namespace StudentSystem.UI
             pnlContent.Controls.Clear();
             lblPageTitle.Text = "Student Management";
 
-            // Üst Panel ve Ekle Butonu
             Panel pnlTop = new Panel { Dock = DockStyle.Top, Height = 60, BackColor = Color.Transparent };
             pnlContent.Controls.Add(pnlTop);
             RoundedPanel btnAdd = CreateAddButton("+ New Student", (s, e) => ShowAddStudentDialog());
             pnlTop.Controls.Add(btnAdd);
 
-            // Grid Oluştur
             DataGridView grid = CreateModernGrid();
 
             try
             {
                 _cachedStudents = _studentService.GetAllStudents();
 
-                // Sütunlar
+                // Normal Sütunlar
                 grid.Columns.Add("ID", "ID");
                 grid.Columns.Add("Name", "First Name");
                 grid.Columns.Add("Last", "Last Name");
                 grid.Columns.Add("Mail", "Email");
 
-                // --- MODERN SİLME BUTONU ---
+                // --- 1. BUTON: NOTLARI GÖR (MAVİ) ---
+                DataGridViewButtonColumn btnDetails = new DataGridViewButtonColumn();
+                btnDetails.HeaderText = "";
+                btnDetails.Text = "📄"; // Belge İkonu
+                btnDetails.UseColumnTextForButtonValue = true;
+                btnDetails.FlatStyle = FlatStyle.Flat;
+                btnDetails.DefaultCellStyle.ForeColor = Color.DodgerBlue;
+                btnDetails.DefaultCellStyle.Font = new Font("Segoe UI", 12, FontStyle.Bold);
+                btnDetails.Width = 50;
+                grid.Columns.Add(btnDetails);
+
+                // --- 2. BUTON: SİL (KIRMIZI) ---
                 DataGridViewButtonColumn btnDelete = new DataGridViewButtonColumn();
                 btnDelete.HeaderText = "";
-                btnDelete.Text = "🗑"; // Çöp Kutusu İkonu (Unicode)
+                btnDelete.Text = "🗑";
                 btnDelete.UseColumnTextForButtonValue = true;
                 btnDelete.FlatStyle = FlatStyle.Flat;
                 btnDelete.DefaultCellStyle.ForeColor = Color.Red;
@@ -202,25 +231,34 @@ namespace StudentSystem.UI
 
                 UpdateStudentGrid(grid, _cachedStudents);
 
-                // Tıklama Olayı
+                // TIKLAMA OLAYLARI
                 grid.CellContentClick += (sender, e) =>
                 {
-                    if (grid.Columns[e.ColumnIndex] is DataGridViewButtonColumn && e.RowIndex >= 0)
+                    if (e.RowIndex >= 0)
                     {
+                        // Tıklanan satırdaki Öğrenci ID ve Adını al
                         int id = (int)grid.Rows[e.RowIndex].Cells[0].Value;
-                        if (MessageBox.Show("Öğrenciyi silmek istediğine emin misin?", "Sil", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                        string name = grid.Rows[e.RowIndex].Cells[1].Value.ToString() + " " + grid.Rows[e.RowIndex].Cells[2].Value.ToString();
+
+                        // Hangi butona tıklandı?
+                        if (grid.Columns[e.ColumnIndex] == btnDetails)
                         {
-                            try
+                            // NOTLAR BUTONU
+                            ShowStudentHistoryDialog(id, name);
+                        }
+                        else if (grid.Columns[e.ColumnIndex] == btnDelete)
+                        {
+                            // SİLME BUTONU
+                            if (MessageBox.Show("Öğrenciyi silmek istediğine emin misin?", "Sil", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
                             {
-                                _studentService.RemoveStudent(id);
-                                LoadStudentPage(); // Sayfayı yenile
+                                try { _studentService.RemoveStudent(id); LoadStudentPage(); }
+                                catch (Exception ex) { MessageBox.Show("Hata: " + ex.Message); }
                             }
-                            catch (Exception ex) { MessageBox.Show("Hata: " + ex.Message); }
                         }
                     }
                 };
             }
-            catch (Exception ex) { MessageBox.Show("Veri Hatası: " + ex.Message); }
+            catch (Exception ex) { MessageBox.Show("Data Error: " + ex.Message); }
 
             AddGridToContent(grid);
         }
@@ -677,6 +715,72 @@ namespace StudentSystem.UI
             form.Controls.Add(num);
             form.Controls.Add(btnSave);
             form.ShowDialog();
+        }
+        private void ShowStudentHistoryDialog(int studentId, string studentName)
+        {
+            // Form Ayarları
+            Form historyForm = CreatePopupForm(studentName + " - Not Geçmişi");
+            historyForm.Size = new Size(500, 400);
+
+            // Başlık
+            Label lblTitle = new Label();
+            lblTitle.Text = studentName + " Notları";
+            lblTitle.Font = new Font("Segoe UI", 14, FontStyle.Bold);
+            lblTitle.ForeColor = Color.FromArgb(40, 40, 60);
+            lblTitle.Location = new Point(20, 15);
+            lblTitle.AutoSize = true;
+            historyForm.Controls.Add(lblTitle);
+
+            // Grid (Tablo)
+            DataGridView grid = CreateModernGrid();
+            grid.Location = new Point(20, 50);
+            grid.Size = new Size(440, 280);
+            grid.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right; // Form büyürse grid de büyüsün
+
+            // Grid Sütunları
+            grid.Columns.Add("Course", "Ders Adı");
+            grid.Columns.Add("Grade", "Not");
+            grid.Columns.Add("Date", "Tarih");
+
+            // Not verilerini çek ve doldur
+            try
+            {
+                var history = _enrollmentService.GetStudentHistory(studentId);
+
+                if (history.Count == 0)
+                {
+                    grid.Visible = false;
+                    Label lblEmpty = new Label() { Text = "Bu öğrenciye ait kayıtlı ders/not bulunamadı.", Location = new Point(20, 60), AutoSize = true, ForeColor = Color.Gray };
+                    historyForm.Controls.Add(lblEmpty);
+                }
+                else
+                {
+                    foreach (var item in history)
+                    {
+                        grid.Rows.Add(item.CourseName, item.Grade, item.EnrollmentDate.ToShortDateString());
+                    }
+                }
+
+                // Not ortalaması hesaplama (Artistlik olsun diye ekledim)
+                if (history.Count > 0)
+                {
+                    double average = history.Average(h => h.Grade);
+                    Label lblAvg = new Label();
+                    lblAvg.Text = $"Genel Ortalaması: {average:F2}";
+                    lblAvg.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+                    lblAvg.ForeColor = Color.Teal;
+                    lblAvg.Location = new Point(20, 340);
+                    lblAvg.AutoSize = true;
+                    historyForm.Controls.Add(lblAvg);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Hata: " + ex.Message);
+            }
+
+            historyForm.Controls.Add(grid);
+            historyForm.ShowDialog();
         }
     }
 

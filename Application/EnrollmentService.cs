@@ -17,6 +17,10 @@ namespace StudentSystem.Application
         {
             return _repository.GetAll();
         }
+        public List<Enrollment> GetStudentHistory(int studentId)
+        {
+            return _repository.GetByStudentId(studentId);
+        }
 
         public void AssignGrade(int studentId, int courseId, double grade)
         {

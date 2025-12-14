@@ -26,5 +26,11 @@ namespace StudentSystem.Application
 
             _repository.Add(studentId, courseId, grade);
         }
+        public void UpdateGrade(int enrollmentId, double newGrade)
+        {
+            if (newGrade < 0 || newGrade > 100)
+                throw new System.Exception("Not 0-100 arasında olmalı!");
+            _repository.UpdateGrade(enrollmentId, newGrade);
+        }
     }
 }

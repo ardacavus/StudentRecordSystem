@@ -69,5 +69,19 @@ namespace StudentSystem.Infrastructure
                 }
             }
         }
+        public void UpdateGrade(int enrollmentId, double newGrade)
+        {
+            using (var conn = _context.GetConnection())
+            {
+                conn.Open();
+                string query = "UPDATE Enrollments SET Grade = @g WHERE EnrollmentID = @id";
+                using (var cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@g", newGrade);
+                    cmd.Parameters.AddWithValue("@id", enrollmentId);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
     }
 }

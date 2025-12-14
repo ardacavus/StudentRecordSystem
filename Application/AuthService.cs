@@ -14,7 +14,7 @@ namespace StudentSystem.Application
             _context = new AppDbContext();
         }
 
-        // Kullanıcı adı ve şifreyi kontrol eden metod
+        // Kullanıcı adı ve şifreyi kontrol eden metod (Stored Procedure kullanır)
         public User Login(string username, string password)
         {
             User user = null;
@@ -22,13 +22,16 @@ namespace StudentSystem.Application
             using (var conn = _context.GetConnection())
             {
                 conn.Open();
-                // SQL Injection'a karşı parametreli sorgu kullanıyoruz (Clean Code & Güvenlik)
-                string query = "SELECT * FROM Users WHERE Username = @u AND PasswordHash = @p";
 
-                using (var cmd = new SqlCommand(query, conn))
+                // Düz SQL yerine Stored Procedure adını veriyoruz
+                // "sp_LoginUser" senin veritabanında oluşturduğumuz prosedürün adı
+                using (var cmd = new SqlCommand("sp_LoginUser", conn))
                 {
-                    cmd.Parameters.AddWithValue("@u", username);
-                    cmd.Parameters.AddWithValue("@p", password);
+                    // Komut tipini StoredProcedure olarak belirtmek ZORUNLU
+                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
+
+                    cmd.Parameters.AddWithValue("@Username", username);
+                    cmd.Parameters.AddWithValue("@Password", password);
 
                     using (var reader = cmd.ExecuteReader())
                     {

@@ -55,5 +55,25 @@ namespace StudentSystem.Infrastructure
                 }
             }
         }
+        public void Delete(int id)
+        {
+            using (var conn = _context.GetConnection())
+            {
+                conn.Open();
+                // Foreign Key hatası almamak için önce bu dersin kayıtlarını siliyoruz (Opsiyonel ama güvenli)
+                using (var cmdEnr = new SqlCommand("DELETE FROM Enrollments WHERE CourseID = @id", conn))
+                {
+                    cmdEnr.Parameters.AddWithValue("@id", id);
+                    cmdEnr.ExecuteNonQuery();
+                }
+
+                // Sonra dersi siliyoruz
+                using (var cmd = new SqlCommand("DELETE FROM Courses WHERE CourseID = @id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@id", id);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
     }
 }

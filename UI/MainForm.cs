@@ -170,51 +170,57 @@ namespace StudentSystem.UI
             pnlContent.Controls.Clear();
             lblPageTitle.Text = "Student Management";
 
-            Panel pnlTop = new Panel();
-            pnlTop.Dock = DockStyle.Top;
-            pnlTop.Height = 60;
-            pnlTop.BackColor = Color.Transparent;
+            // Üst Panel ve Ekle Butonu
+            Panel pnlTop = new Panel { Dock = DockStyle.Top, Height = 60, BackColor = Color.Transparent };
             pnlContent.Controls.Add(pnlTop);
-
             RoundedPanel btnAdd = CreateAddButton("+ New Student", (s, e) => ShowAddStudentDialog());
             pnlTop.Controls.Add(btnAdd);
 
+            // Grid Oluştur
             DataGridView grid = CreateModernGrid();
 
             try
             {
                 _cachedStudents = _studentService.GetAllStudents();
 
-                // Search Box
-                RoundedPanel searchBox = CreateSearchBox("Search Student...", (searchText) =>
-                {
-                    var filtered = _cachedStudents.Where(s =>
-                        s.FirstName.ToLower().Contains(searchText.ToLower()) ||
-                        s.LastName.ToLower().Contains(searchText.ToLower()) ||
-                        s.Email.ToLower().Contains(searchText.ToLower())
-                    ).ToList();
-
-                    UpdateStudentGrid(grid, filtered);
-                });
-
-                searchBox.Location = new Point(btnAdd.Width + 20, 5);
-                pnlTop.Controls.Add(searchBox);
-
-                // English Columns
+                // Sütunlar
                 grid.Columns.Add("ID", "ID");
                 grid.Columns.Add("Name", "First Name");
                 grid.Columns.Add("Last", "Last Name");
                 grid.Columns.Add("Mail", "Email");
 
-                // Layout
-                grid.Columns[0].Width = 60;
-                grid.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-                grid.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-                grid.Columns[3].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                // --- MODERN SİLME BUTONU ---
+                DataGridViewButtonColumn btnDelete = new DataGridViewButtonColumn();
+                btnDelete.HeaderText = "";
+                btnDelete.Text = "🗑"; // Çöp Kutusu İkonu (Unicode)
+                btnDelete.UseColumnTextForButtonValue = true;
+                btnDelete.FlatStyle = FlatStyle.Flat;
+                btnDelete.DefaultCellStyle.ForeColor = Color.Red;
+                btnDelete.DefaultCellStyle.Font = new Font("Segoe UI", 12, FontStyle.Bold);
+                btnDelete.Width = 50;
+                grid.Columns.Add(btnDelete);
 
                 UpdateStudentGrid(grid, _cachedStudents);
+
+                // Tıklama Olayı
+                grid.CellContentClick += (sender, e) =>
+                {
+                    if (grid.Columns[e.ColumnIndex] is DataGridViewButtonColumn && e.RowIndex >= 0)
+                    {
+                        int id = (int)grid.Rows[e.RowIndex].Cells[0].Value;
+                        if (MessageBox.Show("Öğrenciyi silmek istediğine emin misin?", "Sil", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                        {
+                            try
+                            {
+                                _studentService.RemoveStudent(id);
+                                LoadStudentPage(); // Sayfayı yenile
+                            }
+                            catch (Exception ex) { MessageBox.Show("Hata: " + ex.Message); }
+                        }
+                    }
+                };
             }
-            catch (Exception ex) { MessageBox.Show("Data Error: " + ex.Message); }
+            catch (Exception ex) { MessageBox.Show("Veri Hatası: " + ex.Message); }
 
             AddGridToContent(grid);
         }
@@ -233,41 +239,52 @@ namespace StudentSystem.UI
             pnlContent.Controls.Clear();
             lblPageTitle.Text = "Course Management";
 
-            Panel pnlTop = new Panel();
-            pnlTop.Dock = DockStyle.Top;
-            pnlTop.Height = 60;
-            pnlTop.BackColor = Color.Transparent;
+            Panel pnlTop = new Panel { Dock = DockStyle.Top, Height = 60, BackColor = Color.Transparent };
             pnlContent.Controls.Add(pnlTop);
-
             RoundedPanel btnAdd = CreateAddButton("+ New Course", (s, e) => ShowAddCourseDialog());
             pnlTop.Controls.Add(btnAdd);
 
             DataGridView grid = CreateModernGrid();
+
             try
             {
                 _cachedCourses = _courseService.GetAllCourses();
-
-                RoundedPanel searchBox = CreateSearchBox("Search Course...", (searchText) =>
-                {
-                    var filtered = _cachedCourses.Where(c =>
-                        c.CourseName.ToLower().Contains(searchText.ToLower())
-                    ).ToList();
-                    UpdateCourseGrid(grid, filtered);
-                });
-                searchBox.Location = new Point(btnAdd.Width + 20, 5);
-                pnlTop.Controls.Add(searchBox);
 
                 grid.Columns.Add("ID", "ID");
                 grid.Columns.Add("Name", "Course Name");
                 grid.Columns.Add("Credit", "Credits");
 
-                grid.Columns[0].Width = 60;
-                grid.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-                grid.Columns[2].Width = 100;
+                // --- MODERN SİLME BUTONU ---
+                DataGridViewButtonColumn btnDelete = new DataGridViewButtonColumn();
+                btnDelete.HeaderText = "";
+                btnDelete.Text = "🗑";
+                btnDelete.UseColumnTextForButtonValue = true;
+                btnDelete.FlatStyle = FlatStyle.Flat;
+                btnDelete.DefaultCellStyle.ForeColor = Color.Red;
+                btnDelete.DefaultCellStyle.Font = new Font("Segoe UI", 12, FontStyle.Bold);
+                btnDelete.Width = 50;
+                grid.Columns.Add(btnDelete);
 
                 UpdateCourseGrid(grid, _cachedCourses);
+
+                grid.CellContentClick += (sender, e) =>
+                {
+                    if (grid.Columns[e.ColumnIndex] is DataGridViewButtonColumn && e.RowIndex >= 0)
+                    {
+                        int id = (int)grid.Rows[e.RowIndex].Cells[0].Value;
+                        if (MessageBox.Show("Bu dersi ve derse ait notları silmek istediğine emin misin?", "Ders Sil", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                        {
+                            try
+                            {
+                                _courseService.RemoveCourse(id);
+                                LoadCoursePage();
+                            }
+                            catch (Exception ex) { MessageBox.Show("Hata: " + ex.Message); }
+                        }
+                    }
+                };
             }
-            catch (Exception ex) { MessageBox.Show("Data Error: " + ex.Message); }
+            catch (Exception ex) { MessageBox.Show("Veri Hatası: " + ex.Message); }
 
             AddGridToContent(grid);
         }
@@ -286,54 +303,41 @@ namespace StudentSystem.UI
             pnlContent.Controls.Clear();
             lblPageTitle.Text = "Enrollment & Grades";
 
-            Panel pnlTop = new Panel();
-            pnlTop.Dock = DockStyle.Top;
-            pnlTop.Height = 60;
-            pnlTop.BackColor = Color.Transparent;
-            pnlContent.Controls.Add(pnlTop);
+            // Bilgilendirme etiketi
+            Label lblInfo = new Label { Text = "(Notu güncellemek için satıra çift tıkla)", ForeColor = Color.Gray, AutoSize = true, Location = new Point(250, 25) };
 
+            Panel pnlTop = new Panel { Dock = DockStyle.Top, Height = 60, BackColor = Color.Transparent };
+            pnlContent.Controls.Add(pnlTop);
             RoundedPanel btnAdd = CreateAddButton("+ Add Grade", (s, e) => ShowAddEnrollmentDialog());
             pnlTop.Controls.Add(btnAdd);
+            pnlTop.Controls.Add(lblInfo); // Bilgiyi ekle
 
             DataGridView grid = CreateModernGrid();
-            grid.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-            grid.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
 
             try
             {
                 _cachedEnrollments = _enrollmentService.GetAllEnrollments();
 
-                RoundedPanel searchBox = CreateSearchBox("Search Name or Course...", (searchText) =>
-                {
-                    var filtered = _cachedEnrollments.Where(e =>
-                        e.StudentName.ToLower().Contains(searchText.ToLower()) ||
-                        e.CourseName.ToLower().Contains(searchText.ToLower())
-                    ).ToList();
-                    UpdateEnrollmentGrid(grid, filtered);
-                });
-                searchBox.Location = new Point(btnAdd.Width + 20, 5);
-                pnlTop.Controls.Add(searchBox);
-
-                // --- OPTIMIZED TABLE LAYOUT ---
                 grid.Columns.Add("ID", "ID");
                 grid.Columns.Add("Student", "Student Name");
                 grid.Columns.Add("Course", "Course");
                 grid.Columns.Add("Grade", "Grade");
                 grid.Columns.Add("Date", "Date");
 
-                // Fixed Widths for small data
-                grid.Columns[0].Width = 50;  // ID
-                grid.Columns[3].Width = 80;  // Grade
-                grid.Columns[4].Width = 100; // Date
-
-                // Auto Fill for long data (Students & Courses)
-                grid.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-                grid.Columns[1].MinimumWidth = 180; // Ensure readability
-
-                grid.Columns[2].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-                grid.Columns[2].MinimumWidth = 180; // Ensure readability
-
                 UpdateEnrollmentGrid(grid, _cachedEnrollments);
+
+                // --- ÇİFT TIKLAMA İLE GÜNCELLEME ---
+                grid.CellDoubleClick += (sender, e) =>
+                {
+                    if (e.RowIndex >= 0)
+                    {
+                        int enrollId = (int)grid.Rows[e.RowIndex].Cells[0].Value;
+                        string studentName = grid.Rows[e.RowIndex].Cells[1].Value.ToString();
+                        string currentGrade = grid.Rows[e.RowIndex].Cells[3].Value.ToString();
+
+                        ShowUpdateGradeDialog(enrollId, studentName, currentGrade);
+                    }
+                };
             }
             catch (Exception ex) { MessageBox.Show("Data Error: " + ex.Message); }
 
@@ -646,5 +650,34 @@ namespace StudentSystem.UI
             ReleaseCapture();
             SendMessage(this.Handle, 0x112, 0xf012, 0);
         }
+        private void ShowUpdateGradeDialog(int enrollId, string name, string currentGrade)
+        {
+            Form form = CreatePopupForm("Not Güncelle: " + name);
+            form.Height = 250;
+
+            form.Controls.Add(new Label() { Text = "Yeni Notu Girin:", Location = new Point(20, 20), AutoSize = true });
+
+            NumericUpDown num = new NumericUpDown() { Location = new Point(20, 50), Width = 340, Maximum = 100, Minimum = 0, Font = new Font("Segoe UI", 12) };
+            // Mevcut notu kutuya yazalım (Virgül/Nokta dönüşümüne dikkat)
+            if (double.TryParse(currentGrade, out double val)) num.Value = (decimal)val;
+
+            Button btnSave = new Button() { Text = "Güncelle", Location = new Point(20, 100), Width = 340, Height = 40, BackColor = Color.Orange, ForeColor = Color.White, FlatStyle = FlatStyle.Flat };
+
+            btnSave.Click += (s, e) => {
+                try
+                {
+                    _enrollmentService.UpdateGrade(enrollId, (double)num.Value);
+                    MessageBox.Show("Not güncellendi!");
+                    form.Close();
+                    LoadEnrollmentPage(); // Listeyi yenile
+                }
+                catch (Exception ex) { MessageBox.Show(ex.Message); }
+            };
+
+            form.Controls.Add(num);
+            form.Controls.Add(btnSave);
+            form.ShowDialog();
+        }
     }
+
 }

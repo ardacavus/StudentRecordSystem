@@ -32,5 +32,10 @@ namespace StudentSystem.Application
 
             _repository.Add(course);
         }
+        public void RemoveCourse(int id)
+        {
+            _repository.Delete(id);
+        }
     }
+
 }

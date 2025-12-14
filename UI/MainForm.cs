@@ -1,12 +1,13 @@
-﻿using System;
+﻿using StudentSystem.Application;
+using StudentSystem.Core;
+using StudentSystem.Infrastructure;
+using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Windows.Forms;
-using System.Runtime.InteropServices;
-using StudentSystem.Application;
-using StudentSystem.Core;
-using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
 
 namespace StudentSystem.UI
 {
@@ -23,6 +24,7 @@ namespace StudentSystem.UI
         private Panel pnlHeader;
         private Panel pnlContent;
         private Label lblPageTitle;
+        private DashboardRepository _dashboardRepo;
 
         private StudentService _studentService;
         private CourseService _courseService;
@@ -38,6 +40,7 @@ namespace StudentSystem.UI
             _studentService = new StudentService();
             _courseService = new CourseService();
             _enrollmentService = new EnrollmentService();
+            _dashboardRepo = new DashboardRepository(); // <-- Bunu ekle
 
             InitializeUltraModernDashboard();
             LoadDashboardHome();
@@ -161,28 +164,62 @@ namespace StudentSystem.UI
         private void LoadDashboardHome()
         {
             pnlContent.Controls.Clear();
-            lblPageTitle.Text = "Overview";
+            lblPageTitle.Text = "Dashboard Overview";
 
+            // 1. İstatistik Paneli
             FlowLayoutPanel flowStats = new FlowLayoutPanel();
-            flowStats.Dock = DockStyle.Top;
-            flowStats.Height = 250;
+            flowStats.Dock = DockStyle.Top; // Sayfanın tepesine yapış
+
+            // --- DÜZELTME BURADA ---
+            // Yüksekliği (Height = 250) sildik.
+            // Onun yerine "İçeriğine göre otomatik büyü" dedik.
+            flowStats.AutoSize = true;
+            flowStats.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            // -----------------------
+
             flowStats.BackColor = Color.Transparent;
+            flowStats.Padding = new Padding(10);
+            flowStats.WrapContents = true; // Sığmayan kartlar alt satıra geçsin
             pnlContent.Controls.Add(flowStats);
 
             try
             {
-                int studentCount = _studentService.GetAllStudents().Count;
-                int courseCount = _courseService.GetAllCourses().Count;
+                var stats = _dashboardRepo.GetStats();
 
-                // Grade Average Card Removed as requested
+                // Kartları Ekle
+                flowStats.Controls.Add(CreateStatCard("Toplam Öğrenci", stats.TotalStudents.ToString(), Color.FromArgb(108, 92, 231)));
+                flowStats.Controls.Add(CreateStatCard("Aktif Dersler", stats.TotalCourses.ToString(), Color.FromArgb(253, 121, 168)));
+                flowStats.Controls.Add(CreateStatCard("Genel Ort.", stats.AverageGrade.ToString("F2"), Color.FromArgb(0, 184, 148)));
 
-                flowStats.Controls.Add(CreateStatCard("Total Students", studentCount.ToString(), Color.FromArgb(108, 92, 231)));
-                flowStats.Controls.Add(CreateStatCard("Active Courses", courseCount.ToString(), Color.FromArgb(253, 121, 168)));
+                var cardBest = CreateStatCard("Okul Birincisi", stats.TopStudent, Color.FromArgb(255, 118, 117));
+                // Uzun isimler için font ayarı
+                cardBest.Controls[1].Font = new Font("Segoe UI", 16, FontStyle.Bold);
+                cardBest.Controls[1].Location = new Point(20, 80);
+                flowStats.Controls.Add(cardBest);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Stats Error: " + ex.Message);
+                MessageBox.Show("İstatistik Hatası: " + ex.Message);
             }
+
+            // 2. Alt Metin (DÜZELTME: Dock Kullanımı)
+            // Elle konum (Point 30, 270) vermek yerine, bunu da Dock.Top yapıyoruz.
+            Label lblWelcome = new Label();
+            lblWelcome.Text = "Sisteme Hoşgeldiniz! Sol menüden işlemlere devam edebilirsiniz.";
+            lblWelcome.Font = new Font("Segoe UI", 14);
+            lblWelcome.ForeColor = Color.Gray;
+            lblWelcome.AutoSize = true;
+
+            // Flow panelden sonra eklediğimiz için ve Dock=Top dediğimiz için
+            // otomatik olarak flow panelin ALTINA yerleşecek.
+            lblWelcome.Dock = DockStyle.Top;
+            lblWelcome.Padding = new Padding(30, 20, 0, 0); // Üstten biraz boşluk bırak
+
+            pnlContent.Controls.Add(lblWelcome);
+
+            // GARANTİ OLSUN DİYE: İstatistik panelini en üste itiyoruz
+            // Böylece label onun altında kalmaya zorlanıyor.
+            flowStats.BringToFront();
         }
 
         private void LoadStudentPage()

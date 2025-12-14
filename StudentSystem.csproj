@@ -51,11 +51,13 @@
     <Compile Include="Application\EnrollmentService.cs" />
     <Compile Include="Application\StudentService.cs" />
     <Compile Include="Core\Course.cs" />
+    <Compile Include="Core\DashboardStats.cs" />
     <Compile Include="Core\Enrollment.cs" />
     <Compile Include="Core\Student.cs" />
     <Compile Include="Core\User.cs" />
     <Compile Include="Infrastructure\AppDbContext.cs" />
     <Compile Include="Infrastructure\CourseRepository.cs" />
+    <Compile Include="Infrastructure\DashboardRepository.cs" />
     <Compile Include="Infrastructure\EnrollmentRepository.cs" />
     <Compile Include="Infrastructure\StudentRepository.cs" />
     <Compile Include="Program.cs" />

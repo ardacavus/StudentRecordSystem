@@ -47,18 +47,24 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Application\AuthService.cs" />
+    <Compile Include="Application\ClubService.cs" />
     <Compile Include="Application\CourseService.cs" />
     <Compile Include="Application\EnrollmentService.cs" />
+    <Compile Include="Application\InstructorService.cs" />
     <Compile Include="Application\StudentService.cs" />
+    <Compile Include="Core\Club.cs" />
     <Compile Include="Core\Course.cs" />
     <Compile Include="Core\DashboardStats.cs" />
     <Compile Include="Core\Enrollment.cs" />
+    <Compile Include="Core\Instructor.cs" />
     <Compile Include="Core\Student.cs" />
     <Compile Include="Core\User.cs" />
     <Compile Include="Infrastructure\AppDbContext.cs" />
+    <Compile Include="Infrastructure\ClubRepository.cs" />
     <Compile Include="Infrastructure\CourseRepository.cs" />
     <Compile Include="Infrastructure\DashboardRepository.cs" />
     <Compile Include="Infrastructure\EnrollmentRepository.cs" />
+    <Compile Include="Infrastructure\InstructorRepository.cs" />
     <Compile Include="Infrastructure\StudentRepository.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

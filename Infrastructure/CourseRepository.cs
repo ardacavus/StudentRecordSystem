@@ -19,19 +19,31 @@ namespace StudentSystem.Infrastructure
             using (var conn = _context.GetConnection())
             {
                 conn.Open();
-                string query = "SELECT * FROM Courses";
+                // Instructor tablosu ile JOIN yaptık
+                string query = @"
+                    SELECT c.CourseID, c.CourseName, c.Credits, c.DeptID, i.Title, i.FirstName, i.LastName
+                    FROM Courses c
+                    LEFT JOIN Instructors i ON c.InstructorID = i.InstructorID";
+
                 using (var cmd = new SqlCommand(query, conn))
                 {
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
+                            string instName = "Atanmamış";
+                            if (reader["FirstName"] != System.DBNull.Value)
+                            {
+                                instName = $"{reader["Title"]} {reader["FirstName"]} {reader["LastName"]}";
+                            }
+
                             list.Add(new Course
                             {
                                 CourseID = (int)reader["CourseID"],
                                 CourseName = reader["CourseName"].ToString(),
                                 Credits = (int)reader["Credits"],
-                                DeptID = reader["DeptID"] != System.DBNull.Value ? (int)reader["DeptID"] : 0
+                                DeptID = reader["DeptID"] != System.DBNull.Value ? (int)reader["DeptID"] : 0,
+                                InstructorName = instName // Artık hocayı da görüyoruz
                             });
                         }
                     }
@@ -55,19 +67,17 @@ namespace StudentSystem.Infrastructure
                 }
             }
         }
+
         public void Delete(int id)
         {
             using (var conn = _context.GetConnection())
             {
                 conn.Open();
-                // Foreign Key hatası almamak için önce bu dersin kayıtlarını siliyoruz (Opsiyonel ama güvenli)
                 using (var cmdEnr = new SqlCommand("DELETE FROM Enrollments WHERE CourseID = @id", conn))
                 {
                     cmdEnr.Parameters.AddWithValue("@id", id);
                     cmdEnr.ExecuteNonQuery();
                 }
-
-                // Sonra dersi siliyoruz
                 using (var cmd = new SqlCommand("DELETE FROM Courses WHERE CourseID = @id", conn))
                 {
                     cmd.Parameters.AddWithValue("@id", id);

@@ -6,5 +6,8 @@
         public string CourseName { get; set; }
         public int Credits { get; set; }
         public int DeptID { get; set; }
+
+        // --- YENİ ---
+        public string InstructorName { get; set; } // Ekranda göstermek için
     }
 }

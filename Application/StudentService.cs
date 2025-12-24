@@ -15,13 +15,17 @@ namespace StudentSystem.Application
 
         public List<Student> GetAllStudents()
         {
-            // Buraya ileride "Eğer yetkisi varsa getir" gibi kurallar eklenebilir
             return _repository.GetAll();
         }
 
-        public void RegisterStudent(string ad, string soyad, string email, int bolumId)
+        // YENİ
+        public List<Club> GetStudentClubs(int studentId)
         {
-            // Basit validasyon (Clean Code kuralı: Logic burada olur)
+            return _repository.GetStudentClubs(studentId);
+        }
+
+        public void RegisterStudent(string ad, string soyad, string email, string phone, string gender, System.DateTime birthDate, int bolumId)
+        {
             if (string.IsNullOrWhiteSpace(ad) || string.IsNullOrWhiteSpace(soyad))
                 throw new System.Exception("Ad ve Soyad boş olamaz!");
 
@@ -30,6 +34,9 @@ namespace StudentSystem.Application
                 FirstName = ad,
                 LastName = soyad,
                 Email = email,
+                Phone = phone,
+                Gender = gender,
+                BirthDate = birthDate,
                 DeptID = bolumId
             };
 

@@ -8,9 +8,15 @@ namespace StudentSystem.Core
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
+
+        // --- YENİ EKLENEN ALANLAR ---
+        public string Phone { get; set; }
+        public string Gender { get; set; }
+        public DateTime? BirthDate { get; set; }
+        // ----------------------------
+
         public int DeptID { get; set; } // Hangi bölümde?
 
-        // Ekranda göstermek için yardımcı özellikler (Opsiyonel ama işe yarar)
         public string FullName => $"{FirstName} {LastName}";
     }
 }

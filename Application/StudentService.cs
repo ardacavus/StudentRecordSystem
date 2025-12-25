@@ -13,21 +13,14 @@ namespace StudentSystem.Application
             _repository = new StudentRepository();
         }
 
-        public List<Student> GetAllStudents()
-        {
-            return _repository.GetAll();
-        }
+        public List<Student> GetAllStudents() => _repository.GetAll();
 
-        // YENİ
-        public List<Club> GetStudentClubs(int studentId)
-        {
-            return _repository.GetStudentClubs(studentId);
-        }
+        public List<Club> GetStudentClubs(int studentId) => _repository.GetStudentClubs(studentId);
 
         public void RegisterStudent(string ad, string soyad, string email, string phone, string gender, System.DateTime birthDate, int bolumId)
         {
             if (string.IsNullOrWhiteSpace(ad) || string.IsNullOrWhiteSpace(soyad))
-                throw new System.Exception("Ad ve Soyad boş olamaz!");
+                throw new System.Exception("First Name and Last Name cannot be empty!");
 
             var student = new Student
             {
@@ -43,9 +36,6 @@ namespace StudentSystem.Application
             _repository.Add(student);
         }
 
-        public void RemoveStudent(int id)
-        {
-            _repository.Delete(id);
-        }
+        public void RemoveStudent(int id) => _repository.Delete(id);
     }
 }

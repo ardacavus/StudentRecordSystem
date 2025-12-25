@@ -13,15 +13,12 @@ namespace StudentSystem.Application
             _repository = new CourseRepository();
         }
 
-        public List<Course> GetAllCourses()
-        {
-            return _repository.GetAll();
-        }
+        public List<Course> GetAllCourses() => _repository.GetAll();
 
         public void CreateCourse(string name, int credits, int deptId)
         {
             if (string.IsNullOrWhiteSpace(name))
-                throw new System.Exception("Ders adı boş olamaz!");
+                throw new System.Exception("Course name cannot be empty!");
 
             var course = new Course
             {
@@ -32,10 +29,6 @@ namespace StudentSystem.Application
 
             _repository.Add(course);
         }
-        public void RemoveCourse(int id)
-        {
-            _repository.Delete(id);
-        }
+        public void RemoveCourse(int id) => _repository.Delete(id);
     }
-
 }

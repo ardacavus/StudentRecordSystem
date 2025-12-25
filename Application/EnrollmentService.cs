@@ -13,27 +13,20 @@ namespace StudentSystem.Application
             _repository = new EnrollmentRepository();
         }
 
-        public List<Enrollment> GetAllEnrollments()
-        {
-            return _repository.GetAll();
-        }
-        public List<Enrollment> GetStudentHistory(int studentId)
-        {
-            return _repository.GetByStudentId(studentId);
-        }
+        public List<Enrollment> GetAllEnrollments() => _repository.GetAll();
+        public List<Enrollment> GetStudentHistory(int studentId) => _repository.GetByStudentId(studentId);
 
         public void AssignGrade(int studentId, int courseId, double grade)
         {
-            // Basit kontrol: Not 0-100 arası olmalı
             if (grade < 0 || grade > 100)
-                throw new System.Exception("Not 0 ile 100 arasında olmalıdır!");
+                throw new System.Exception("Grade must be between 0 and 100!");
 
             _repository.Add(studentId, courseId, grade);
         }
         public void UpdateGrade(int enrollmentId, double newGrade)
         {
             if (newGrade < 0 || newGrade > 100)
-                throw new System.Exception("Not 0-100 arasında olmalı!");
+                throw new System.Exception("Grade must be between 0 and 100!");
             _repository.UpdateGrade(enrollmentId, newGrade);
         }
     }

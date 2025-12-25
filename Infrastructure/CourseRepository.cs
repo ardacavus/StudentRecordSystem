@@ -19,7 +19,6 @@ namespace StudentSystem.Infrastructure
             using (var conn = _context.GetConnection())
             {
                 conn.Open();
-                // Instructor tablosu ile JOIN yaptık
                 string query = @"
                     SELECT c.CourseID, c.CourseName, c.Credits, c.DeptID, i.Title, i.FirstName, i.LastName
                     FROM Courses c
@@ -31,7 +30,7 @@ namespace StudentSystem.Infrastructure
                     {
                         while (reader.Read())
                         {
-                            string instName = "Atanmamış";
+                            string instName = "Unassigned";
                             if (reader["FirstName"] != System.DBNull.Value)
                             {
                                 instName = $"{reader["Title"]} {reader["FirstName"]} {reader["LastName"]}";
@@ -43,7 +42,7 @@ namespace StudentSystem.Infrastructure
                                 CourseName = reader["CourseName"].ToString(),
                                 Credits = (int)reader["Credits"],
                                 DeptID = reader["DeptID"] != System.DBNull.Value ? (int)reader["DeptID"] : 0,
-                                InstructorName = instName // Artık hocayı da görüyoruz
+                                InstructorName = instName
                             });
                         }
                     }

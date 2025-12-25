@@ -13,15 +13,12 @@ namespace StudentSystem.Application
             _repository = new InstructorRepository();
         }
 
-        public List<Instructor> GetAllInstructors()
-        {
-            return _repository.GetAll();
-        }
+        public List<Instructor> GetAllInstructors() => _repository.GetAll();
 
         public void AddInstructor(string firstName, string lastName, string title, string phone, int deptId)
         {
             if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
-                throw new System.Exception("İsim ve Soyisim boş olamaz!");
+                throw new System.Exception("First Name and Last Name cannot be empty!");
 
             var instructor = new Instructor
             {

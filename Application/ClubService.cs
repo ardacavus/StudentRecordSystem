@@ -13,21 +13,14 @@ namespace StudentSystem.Application
             _repository = new ClubRepository();
         }
 
-        public List<Club> GetAllClubs()
-        {
-            return _repository.GetAll();
-        }
+        public List<Club> GetAllClubs() => _repository.GetAll();
 
-        // YENİ
-        public List<Student> GetClubMembers(int clubId)
-        {
-            return _repository.GetMembers(clubId);
-        }
+        public List<Student> GetClubMembers(int clubId) => _repository.GetMembers(clubId);
 
         public void CreateClub(string name, string description)
         {
             if (string.IsNullOrWhiteSpace(name))
-                throw new System.Exception("Kulüp adı boş olamaz!");
+                throw new System.Exception("Club name cannot be empty!");
 
             _repository.Add(name, description);
         }
